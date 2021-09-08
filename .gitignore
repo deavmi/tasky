@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/tasky
+tasky.so
+tasky.dylib
+tasky.dll
+tasky.a
+tasky.lib
+tasky-test-*
+*.exe
+*.o
+*.obj
+*.lst
