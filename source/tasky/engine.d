@@ -5,6 +5,7 @@ import core.sync.mutex : Mutex;
 import tristanable.manager;
 import std.socket : Socket;
 import tristanable.queue : Queue;
+import tristanable.queueitem;
 import tristanable.encoding : DataMessage, encodeForSend;
 import eventy;
 
@@ -57,8 +58,11 @@ public final class TaskManager : Thread
                 /* If the job is fulfilled */
                 if(job.isFulfilled())
                 {
-                    /* Get the job's task */
-                    Task jobTask = job.getTask();
+                    /* Get the Event for dispatching */
+                    Event dispatchEvent = job.getEventForDispatch();
+
+                    /* Dispatch the event */
+                    eventEngine.push(dispatchEvent);
 
                     /* Free the tristanable tag for this job */
                     job.complete();
@@ -114,6 +118,18 @@ public final class TaskManager : Thread
             DataMessage tEncoded = new DataMessage(tristanableTag.getTag(), taskPayload);
 
             return tEncoded;
+        }
+
+        public Event getEventForDispatch()
+        {
+            /* Dequeue the data from the tristanable queue */
+            QueueItem queueItem = tristanableTag.dequeue();
+            byte[] receivedData = queueItem.getData();
+
+            /* Parse into Event (based on the Job's task type) and return */
+            Event eventToDispatch = task.getEvent(receivedData);
+
+            return eventToDispatch;
         }
 
         public bool isFulfilled()
