@@ -152,7 +152,25 @@ public final class TaskManager : Thread
 
 	private void worker()
 	{
+		while(true)
+		{
+			currentTasksLock.lock();
 
+			foreach(Task task; currentTasks)
+			{
+				/* Find the matching tristananble queue */
+				TQueue tQueue = manager.getQueue(task.getID());
+
+				/* TODO: Poll queue here */
+				if(tQueue.poll())
+				{
+					/* Dequeue the item */
+					QueueItem tQueueItem = tQueue.dequeue();
+				}
+			}
+
+			currentTasksLock.unlock();
+		}
 	}
 
 	/**
