@@ -140,14 +140,24 @@ public final class TaskManager : Thread
 	*/
 	private Manager manager;
 
+	/**
+	* Task management
+	*/
 	private DList!(Task) currentTasks;
 	private Mutex currentTasksLock;
+
+	/**
+	* Event-loop system
+	*/
+	private Engine eventEngine;
 
 	this(Manager manager)
 	{
 		super(&worker);
 		this.manager = manager;
 		this.currentTasksLock = new Mutex();
+
+		eventEngine = new Engine();
 	} 
 
 	private void worker()
@@ -166,6 +176,11 @@ public final class TaskManager : Thread
 				{
 					/* Dequeue the item */
 					QueueItem tQueueItem = tQueue.dequeue();
+
+					/* Delete the queue */
+					manager.removeQueue(tQueue);
+
+					/* TODO: Add dispatch here */
 				}
 			}
 
