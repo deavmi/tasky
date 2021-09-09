@@ -90,12 +90,24 @@ unittest
 	serverThread.stopThread();
 
 	//manager.start();
-	// TaskManager tman = new TaskManager();
+	//TaskManager tman = new TaskManager();
 }
 
 public class Task
 {
-	private Event e;
+	/**
+	* Event-loop tag
+	*
+	* To know which signal handler should be used
+	*/
+	private Event eventType;
+	private Signal[] handlers;
+	
+	public Event getEvent()
+	{
+		return eventType;
+	}
+
 
 	private byte[] dataToSend;
 
@@ -181,6 +193,7 @@ public final class TaskManager : Thread
 					manager.removeQueue(tQueue);
 
 					/* TODO: Add dispatch here */
+					eventEngine.push(task.getEvent());
 				}
 			}
 
