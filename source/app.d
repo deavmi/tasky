@@ -71,9 +71,10 @@ unittest
 	TaskManager tMan = new TaskManager(manager);
 	tMan.start();
 
+	
+
 
 	ReverseTask task = new ReverseTask("");
-	task.eventType = new ReverseEvent(1, "Hello");
 	
 	tMan.pushJob(task);
 
@@ -206,7 +207,9 @@ public final class ReverseTask : Task
 
 	this(string words)
 	{
-		super(cast(byte[])words);
+		ReverseEvent revEvent = new ReverseEvent(1, words);
+
+		super(revEvent, [&reverseHandler], cast(byte[])"d");
 	}
 
 	public static void reverseHandler(Event e)
@@ -218,11 +221,6 @@ public final class ReverseTask : Task
 
 	
 
-	private void sethandlers()
-	{
-		/* Set some signal handlers */
-		handlers = [new Signal([eventType.id], &reverseHandler)];
-	}
 }
 
 public class Task
@@ -240,17 +238,33 @@ public class Task
 		return eventType;
 	}
 
+	private void setEvent(Event eventType, EventHandler[] handlers)
+	{
+		this.eventType = eventType;
+		foreach(EventHandler handler; handlers)
+		{
+			this.handlers ~= [new Signal([eventType.id], handler)];
+		}
+	}
+
 	private byte[] dataToSend;
 
-	this(byte[] dataToSend)
+	this(Event eventType, EventHandler[] handlers, byte[] dataToSend)
 	{
+		setEvent(eventType, handlers);
 		this.dataToSend = dataToSend;
+	}
+
+	public Signal[] getHandlers()
+	{
+		return handlers;
 	}
 
 	public ulong getID()
 	{
 		return id;
 	}
+
 
 	private ulong id;
 	private bool isSet;
@@ -315,10 +329,7 @@ public final class TaskManager : Thread
 			foreach(Task task; currentTasks)
 			{
 				/* Find the matching tristananble queue */
-				TQueue tQueue = manager.getQueue(task.getID());
-
-
-				writeln(tQueue);
+				TQueue tQueue = manager.getQueue(task.getID());				
 
 				/* TODO: Poll queue here */
 				if(tQueue.poll())
@@ -334,6 +345,9 @@ public final class TaskManager : Thread
 
 					/* Add to list of tasks to delete (for-loop list safety) */
 					tasksToBeRemoved~=task;
+
+					writeln("disp");
+					writeln(eventEngine.getSignalsForEvent(task.getEvent()));
 				}
 			}
 
@@ -369,6 +383,13 @@ public final class TaskManager : Thread
 		{
 			/* Set the task's ID */
 			task.setId(taskQueue.getTag());
+
+			/* Install this task's type's handlers */
+			/* TODO: Install Like, event types */
+			foreach(Signal signal; task.getHandlers())
+			{
+				eventEngine.addSignalHandler(signal);
+			}
 
 			/* Lock the pending tasks queue */
 			currentTasksLock.lock();
