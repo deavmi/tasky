@@ -3,13 +3,51 @@ module tasky.engine;
 import std.container.dlist : DList;
 import core.sync.mutex : Mutex;
 import tristanable.manager;
-import std.socket : Socket;
+import std.socket;
 import tristanable.queue : Queue;
 import tristanable.queueitem;
 import tristanable.encoding : DataMessage, encodeForSend;
 import eventy;
 
 import core.thread : Thread;
+
+unittest
+{
+
+    /**
+    * Server process
+    */
+    Socket servSocket = new Socket(AddressFamily.INET6, SocketType.STREAM, ProtocolType.TCP);
+    servSocket.bind(parseAddress("::1", 0));
+    servSocket.listen(0);
+
+    auto serverThread = new class Thread
+    {
+        this()
+        {
+            super(&worker);
+        }
+
+        private void worker()
+        {
+            
+            while(true)
+            {
+                Socket client = servSocket.accept();
+            }
+        }
+    };
+
+    /* Start the server thread */
+    serverThread.start();
+
+    /* Open a socket to the server */
+    Socket conn = new Socket(AddressFamily.INET6, SocketType.STREAM, ProtocolType.TCP);
+    conn.connect(servSocket.localAddress);
+
+    /* Start the task manager */
+    TaskManager taskManager = new TaskManager(conn);
+}
 
 public final class TaskManager : Thread
 {
@@ -38,6 +76,9 @@ public final class TaskManager : Thread
 
         /* Initialize the event-loop */
         eventEngine = new Engine();
+
+        /* Initialize job queue lock */
+        jobsLock =  new Mutex();
 
         /* Start the thread */
         start();
