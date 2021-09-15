@@ -356,7 +356,7 @@ public final class TestTask : Task
     private static void TestTaskHandlerFunc(Event e)
     {
         import std.stdio;
-        writeln("Poes", e);
+        writeln("<<<<Tasky task diapatched>>>>", e);
     }
 
     public override Event getEvent(byte[] dataIn)
