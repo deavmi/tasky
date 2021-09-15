@@ -133,6 +133,7 @@ public final class TaskManager : Thread
                     /* Get the Event for dispatching */
                     Event dispatchEvent = job.getEventForDispatch();
 
+
                     writeln("Tasky: Job is fulfilled ", job);
 
                     /* Dispatch the event */
@@ -242,6 +243,10 @@ public final class TaskManager : Thread
         {
             Signal signalHandler = new Signal([typeID], handler);
             eventEngine.addSignalHandler(signalHandler);
+
+            /* Because this happens at the same time and a queue for this type would exist add that too */
+            /* TODO: Make eventy crash if typeID for non-existent queue */
+            eventEngine.addQueue(typeID);
         }
         
     }
