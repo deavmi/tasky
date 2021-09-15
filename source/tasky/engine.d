@@ -11,8 +11,11 @@ import eventy;
 
 import core.thread : Thread;
 
+import std.stdio;
+
 unittest
 {
+    import std.stdio;
 
     /**
     * Server process
@@ -34,6 +37,21 @@ unittest
             while(true)
             {
                 Socket client = servSocket.accept();
+
+                import bmessage;
+
+                byte[] data;
+                receiveMessage(client, data);
+                writeln("Server received: ", data);
+
+                byte[] dataOut = [69,0,0,0];
+                DataMessage dOut = new DataMessage(0, dataOut);
+                client.send(bmessage.encodeBformat(dOut.encode()));
+                
+                
+                /* Wait for a single byte (for preparation) */
+                // byte[] k = [1];
+                // client.receive(k);
             }
         }
     };
@@ -47,6 +65,11 @@ unittest
 
     /* Start the task manager */
     TaskManager taskManager = new TaskManager(conn);
+    taskManager.start();
+
+    /* Create a Task to submit as a job */
+    TestTask testTask = new TestTask("Hello, world, this is a test message");
+    taskManager.submitTask(testTask);
 }
 
 public final class TaskManager : Thread
@@ -77,6 +100,9 @@ public final class TaskManager : Thread
         /* Initialize the event-loop */
         eventEngine = new Engine();
 
+        /* Start the event engine */
+        eventEngine.start();
+
         /* Initialize job queue lock */
         jobsLock =  new Mutex();
 
@@ -94,13 +120,19 @@ public final class TaskManager : Thread
             /* Clean list (list of jobs to be removed) */
             Job[] cleanList;
 
+            // writeln("Task: Loop begin");
+
             foreach(Job job; jobs)
             {
+                writeln("Tasky: Job process begin ", job);
+
                 /* If the job is fulfilled */
                 if(job.isFulfilled())
                 {
                     /* Get the Event for dispatching */
                     Event dispatchEvent = job.getEventForDispatch();
+
+                    writeln("Tasky: Job is fulfilled ", job);
 
                     /* Dispatch the event */
                     eventEngine.push(dispatchEvent);
@@ -111,6 +143,8 @@ public final class TaskManager : Thread
                     /* Add job to the deletion queue */
                     cleanList ~= job;
                 }
+
+                
             }
 
             /* Delete tje jobs */
@@ -246,6 +280,8 @@ public final class TaskManager : Thread
 
             /* Send the payload */
             manager.getSocket().send(bEncoded);
+
+            writeln("Tasky: Sent payload");
         }
         /* If unsuccessful, throw exception */
         else
