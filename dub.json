@@ -8,8 +8,8 @@
 		"eventy": "0.1.4",
 		"tristanable": "~>2.3.10"
 	},
-	"description": "A minimal D application.",
-	"license": "LGPL+",
+	"description": "Tagged network-message task engine",
+	"license": "LGPL v3",
 	"name": "tasky",
 	"targetType": "library"
 }
