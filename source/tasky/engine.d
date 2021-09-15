@@ -44,7 +44,7 @@ unittest
                 receiveMessage(client, data);
                 writeln("Server received: ", data);
 
-                byte[] dataOut = [69,0,0,0];
+                byte[] dataOut = [65,66,66,65];
                 DataMessage dOut = new DataMessage(0, dataOut);
                 client.send(bmessage.encodeBformat(dOut.encode()));
                 
@@ -65,11 +65,12 @@ unittest
 
     /* Start the task manager */
     TaskManager taskManager = new TaskManager(conn);
-    taskManager.start();
 
     /* Create a Task to submit as a job */
     TestTask testTask = new TestTask("Hello, world, this is a test message");
     taskManager.submitTask(testTask);
+
+  
 }
 
 public final class TaskManager : Thread
