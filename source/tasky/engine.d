@@ -70,7 +70,7 @@ unittest
     TestTask testTask = new TestTask("Hello, world, this is a test message");
     taskManager.submitTask(testTask);
 
-  
+    
 }
 
 public final class TaskManager : Thread
@@ -121,20 +121,13 @@ public final class TaskManager : Thread
             /* Clean list (list of jobs to be removed) */
             Job[] cleanList;
 
-            // writeln("Task: Loop begin");
-
             foreach(Job job; jobs)
             {
-                writeln("Tasky: Job process begin ", job);
-
                 /* If the job is fulfilled */
                 if(job.isFulfilled())
                 {
                     /* Get the Event for dispatching */
                     Event dispatchEvent = job.getEventForDispatch();
-
-
-                    writeln("Tasky: Job is fulfilled ", job);
 
                     /* Dispatch the event */
                     eventEngine.push(dispatchEvent);
@@ -286,8 +279,6 @@ public final class TaskManager : Thread
 
             /* Send the payload */
             manager.getSocket().send(bEncoded);
-
-            writeln("Tasky: Sent payload");
         }
         /* If unsuccessful, throw exception */
         else
