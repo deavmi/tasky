@@ -100,6 +100,89 @@ public abstract class Descriptor
 	}
 
 
+	/**
+	* TODO: Add comment
+	*
+	* This method is not thread safe, it is only to
+	* be called from thread safe functions that
+	* correctly lock the queue
+	*/
+	private static bool isDescIDInUse(ulong descID)
+	{
+		foreach(ulong descIDCurr; descQueue)
+		{
+			if(descID == descIDCurr)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	unittest
+	{
+		try
+		{
+			while(true)
+			{
+				addDescQueue();
+			}
+
+			assert(false);
+		}
+		catch(JobException e)
+		{
+			assert(true);
+		}
+	}
+
+
+	/**
+	* Finds the next valid descriptor class ID,
+	* reserves it and returns it
+	*/
+	private static ulong addDescQueue()
+	{
+		ulong chosenID = 0;
+		bool zeroHit = true;
+
+		descQueueLock.lock();
+
+		while(true)
+		{
+			if(chosenID)
+			{
+				if(zeroHit)
+				{
+					zeroHit = false;
+				}
+				/* Overflowed, no space available */
+				else
+				{
+					descQueueLock.unlock();
+					throw new JobException("No descriptor class IDs available");
+				}
+			}
+
+			if(isDescIDInUse(chosenID))
+			{
+				chosenID++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		descQueue ~= chosenID;
+
+		descQueueLock.unlock();
+
+		return chosenID;
+	}
+
+
 
 	private ulong descriptorClass;
 
