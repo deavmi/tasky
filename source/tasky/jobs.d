@@ -9,7 +9,9 @@
 module tasky.jobs;
 
 import tasky.exceptions : TaskyException;
-/* TODO: DList stuff *?
+/* TODO: DList stuff */
+import std.container.dlist;
+import core.sync.mutex : Mutex;
 
 /**
 * A Job to be scheduled
@@ -73,6 +75,17 @@ public final class JobException : TaskyException
 */
 public abstract class Descriptor
 {
+	private static __gshared Mutex descQueueLock;
+	private static __gshared DList!(ulong) descQueue;
+
+	/**
+	* Static initialization of the descriptor
+	* class ID queue's lock
+	*/
+	static this()
+	{
+		descQueueLock = new Mutex();
+	}
 
 	/* TODO: Static (and _gshared cross threads) ID tracker */
 	/**
