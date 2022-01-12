@@ -9,17 +9,35 @@
 module tasky.jobs;
 
 import tasky.exceptions : TaskyException;
+/* TODO: DList stuff *?
 
 /**
 * A Job to be scheduled
 */
-public class Job
+public final class Job
 {
-	/* TODO: Static (and gsharea cross threads) ID tracker */
+
+
+	/**
+	* TODO: Comment
+	*/
+	private Descriptor descriptor;
+	private byte[] payload;
+
+	/**
+	* Returns the classification of this Job, i.e.
+	* its Descriptor number
+	*/
+	public ulong getJobTypeID()
+	{
+		return descriptor.getDescriptorClass();
+	}
 
 	private this(Descriptor jobType, byte[] payload)
 	{
 		/* TODO: Extract needed information from here */
+		this.descriptor = jobType;
+		this.payload = payload;
 	}
 
 	protected Job newJob(Descriptor jobType, byte[] payload)
@@ -34,16 +52,9 @@ public class Job
 		return new Job(jobType, payload);
 	}
 
-	/**
-	* Checks whether a Descriptor class has been registered
-	* previously that has the same ID but not the same
-	* equality (i.e. not spawned from the same object)
-	*/
-	public static bool isDescriptorClass(Descriptor descriptor)
-	{
-		/* TODO: Add the implementation for this */
-		return false;
-	}
+
+
+
 }
 
 public final class JobException : TaskyException
@@ -62,18 +73,33 @@ public final class JobException : TaskyException
 */
 public abstract class Descriptor
 {
+
+	/* TODO: Static (and _gshared cross threads) ID tracker */
+	/**
+	* Checks whether a Descriptor class has been registered
+	* previously that has the same ID but not the same
+	* equality (i.e. not spawned from the same object)
+	*/
+	public static bool isDescriptorClass(Descriptor descriptor)
+	{
+		/* TODO: Add the implementation for this */
+		return false;
+	}
+
+
+
 	private ulong descriptorClass;
 
 	/**
 	* For this "class of Job" the unique
 	* id is taken in as `descriptorClass`
 	*/
-	final this(ulong descriptorClass)
+	this(ulong descriptorClass)
 	{
 		this.descriptorClass = descriptorClass;
 
 		/* TODO: Call descriotor class checker */
-		if(Job.isDescriptorClass(this))
+		if(isDescriptorClass(this))
 		{
 			throw new JobException("Descriptor class ID already in use by another descriptor");
 		}
@@ -99,6 +125,11 @@ public abstract class Descriptor
 		}
 
 		return instantiatedDescriptor;
+	}
+
+	public final ulong getDescriptorClass()
+	{
+		return descriptorClass;
 	}
 }
 
