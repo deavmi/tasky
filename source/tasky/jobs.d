@@ -15,6 +15,8 @@ import tasky.exceptions : TaskyException;
 */
 public class Job
 {
+	/* TODO: Static (and gsharea cross threads) ID tracker */
+
 	private this(Descriptor jobType, byte[] payload)
 	{
 		/* TODO: Extract needed information from here */
@@ -30,6 +32,17 @@ public class Job
 		assert(payload.length);
 
 		return new Job(jobType, payload);
+	}
+
+	/**
+	* Checks whether a Descriptor class has been registered
+	* previously that has the same ID but not the same
+	* equality (i.e. not spawned from the same object)
+	*/
+	public static bool isDescriptorClass(Descriptor descriptor)
+	{
+		/* TODO: Add the implementation for this */
+		return false;
 	}
 }
 
@@ -58,6 +71,13 @@ public abstract class Descriptor
 	final this(ulong descriptorClass)
 	{
 		this.descriptorClass = descriptorClass;
+
+		/* TODO: Call descriotor class checker */
+		if(Job.isDescriptorClass(this))
+		{
+			throw new JobException("Descriptor class ID already in use by another descriptor");
+		}
+
 	}
 
 	/**
@@ -69,13 +89,14 @@ public abstract class Descriptor
 	{
 		Job instantiatedDescriptor;
 
-
-
 		if(payload.length == 0)
 		{
-			throw new Exception("JobSpawnError: Empty payloads not allowed");
+			throw new JobException("JobSpawnError: Empty payloads not allowed");
 		}
-
+		else
+		{
+			instantiatedDescriptor = new Job(this, payload);
+		}
 
 		return instantiatedDescriptor;
 	}
