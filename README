@@ -1,6 +1,8 @@
 tasky
 =====
 
+![](branding/logo.png)
+
 ## Creating a `Descriptor`
 
 Before we can spawn any jobs one needs to first create a description
