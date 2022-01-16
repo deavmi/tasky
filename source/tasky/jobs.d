@@ -35,7 +35,7 @@ public final class Job
 	* Returns the classification of this Job, i.e.
 	* its Descriptor number
 	*/
-	public ulong getJobTypeID()
+	public string getJobTypeID()
 	{
 		return descriptor.getDescriptorClass();
 	}
@@ -108,6 +108,8 @@ public abstract class Descriptor
 	/**
 	* Returns true if the given descriptor ID is in
 	* use, false otherwise
+	*
+	* @param
 	*/
 	private static bool isDescIDInUse(string descID)
 	{
@@ -202,22 +204,40 @@ public abstract class Descriptor
 
 
 
-	private ulong descriptorClass;
+	private string descriptorClass;
+
+
+
 
 	/**
-	* For this "class of Job" the unique
-	* id is taken in as `descriptorClass`
+	* Creates a new Descriptor
 	*/
-	this(ulong descriptorClass)
+	this()
 	{
-		this.descriptorClass = descriptorClass;
+		/* Grab a descripor ID */
+		descriptorClass = addDescQueue();
+	}
 
-		/* TODO: Call descriotor class checker */
-		if(isDescriptorClass(this))
+
+	/**
+	* Test creation of a new Descriptor
+	*/
+	unittest
+	{
+		try
 		{
-			throw new JobException("Descriptor class ID already in use by another descriptor");
-		}
+			class TestDesc : Descriptor
+			{
+			}
 
+			new TestDesc();
+
+			assert(true);
+		}
+		catch(TaskyException)
+		{
+			assert(false);
+		}
 	}
 
 	/**
@@ -241,7 +261,7 @@ public abstract class Descriptor
 		return instantiatedDescriptor;
 	}
 
-	public final ulong getDescriptorClass()
+	public final string getDescriptorClass()
 	{
 		return descriptorClass;
 	}
