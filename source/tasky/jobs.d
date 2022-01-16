@@ -106,21 +106,23 @@ public abstract class Descriptor
 
 
 	/**
-	* TODO: Add comment
-	*
-	* This method is not thread safe, it is only to
-	* be called from thread safe functions that
-	* correctly lock the queue
+	* Returns true if the given descriptor ID is in
+	* use, false otherwise
 	*/
 	private static bool isDescIDInUse(string descID)
 	{
+		descQueueLock.lock();
+
 		foreach(string descIDCurr; descQueue)
 		{
 			if(cmp(descID, descIDCurr) == 0)
 			{
+				descQueueLock.unlock();
 				return true;
 			}
 		}
+
+		descQueueLock.unlock();
 
 		return false;
 	}
