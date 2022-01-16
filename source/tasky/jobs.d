@@ -8,10 +8,15 @@
 */
 module tasky.jobs;
 
+/* TODO: Remove this import */
+import std.stdio;
+
 import tasky.exceptions : TaskyException;
 /* TODO: DList stuff */
 import std.container.dlist;
 import core.sync.mutex : Mutex;
+
+import std.string : cmp;
 
 /**
 * A Job to be scheduled
@@ -76,7 +81,7 @@ public final class JobException : TaskyException
 public abstract class Descriptor
 {
 	private static __gshared Mutex descQueueLock;
-	private static __gshared DList!(ulong) descQueue;
+	private static __gshared DList!(string) descQueue;
 
 	/**
 	* Static initialization of the descriptor
@@ -107,11 +112,11 @@ public abstract class Descriptor
 	* be called from thread safe functions that
 	* correctly lock the queue
 	*/
-	private static bool isDescIDInUse(ulong descID)
+	private static bool isDescIDInUse(string descID)
 	{
-		foreach(ulong descIDCurr; descQueue)
+		foreach(string descIDCurr; descQueue)
 		{
-			if(descID == descIDCurr)
+			if(cmp(descID, descIDCurr) == 0)
 			{
 				return true;
 			}
@@ -120,66 +125,77 @@ public abstract class Descriptor
 		return false;
 	}
 
+
+
+
+	/**
+	* Test unique descriptor class ID generation
+	* and tracking
+	*/
 	unittest
 	{
-		try
-		{
-			while(true)
-			{
-				addDescQueue();
-			}
+		string s1 = addDescQueue();
+		string s2 = addDescQueue();
 
-			assert(false);
-		}
-		catch(JobException e)
-		{
-			assert(true);
-		}
+		assert(cmp(s1, s2) != 0);
 	}
+
 
 
 	/**
 	* Finds the next valid descriptor class ID,
 	* reserves it and returns it
 	*/
-	private static ulong addDescQueue()
+	private static string addDescQueue()
 	{
-		ulong chosenID = 0;
-		bool zeroHit = true;
+		string descID;
 
 		descQueueLock.lock();
 
-		while(true)
+
+		do
 		{
-			if(chosenID)
-			{
-				if(zeroHit)
-				{
-					zeroHit = false;
-				}
-				/* Overflowed, no space available */
-				else
-				{
-					descQueueLock.unlock();
-					throw new JobException("No descriptor class IDs available");
-				}
-			}
-
-			if(isDescIDInUse(chosenID))
-			{
-				chosenID++;
-			}
-			else
-			{
-				break;
-			}
+			descID = generateDescID();
 		}
+		while(isDescIDInUse(descID));
 
-		descQueue ~= chosenID;
+
+		descQueue ~= descID;
+
 
 		descQueueLock.unlock();
 
-		return chosenID;
+		return descID;
+	}
+
+	/**
+	* Gneerates a Descriptor ID
+	*
+	* This returns a string that is a hash of
+	* the current time
+	*/
+	private static string generateDescID()
+	{
+		/* Get current time */
+		import std.datetime.systime : Clock;
+		string time = Clock.currTime().toString();
+
+		/* Get random number */
+		/* TODO: Get random number */
+		string randnum;
+
+		/* Create data string */
+		string data = time~randnum;
+
+		/* Calculate the hash */
+		import std.digest.sha;
+		import std.digest;
+
+		SHA1Digest sha = new SHA1Digest();
+
+		string digest = toHexString(sha.digest(data));
+
+		return digest;
 	}
 
 
