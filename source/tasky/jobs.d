@@ -17,6 +17,8 @@ import std.container.dlist;
 import core.sync.mutex : Mutex;
 
 import std.string : cmp;
+import eventy.signal : Signal;
+import eventy.event : Event;
 
 /**
 * A Job to be scheduled
@@ -75,23 +77,24 @@ public final class JobException : TaskyException
 /**
 * Descriptor
 *
-* This represents a type of Job, complete
-* with the data to be sent and a type ID
+* This represents a type of Job, represented
+* by a unique ID. Along with this is an associated
+* signal handler provided by the user which is
+* to be run on completion of said Job
 */
-public abstract class Descriptor
+public abstract class Descriptor : Signal
 {
 	private static __gshared Mutex descQueueLock;
 	private static __gshared DList!(ulong) descQueue;
-
-	import eventy.signal;
 
 	/**
 	* Descriptor data
 	*
 	* The signal handler that handles the running
 	* of any job associated with this Descriptor
+	*
+	* We should `alias  can we?
 	*/
-	private immutable Signal signalHandler;
 	private immutable ulong descriptorClass;
 
 	/**
@@ -230,7 +233,7 @@ public abstract class Descriptor
 	/**
 	* Creates a new Descriptor
 	*/
-	this(EventHandler ev)
+	this()
 	{
 		/* Grab a descripor ID */
 		descriptorClass = addDescQueue();
@@ -240,29 +243,41 @@ public abstract class Descriptor
 		* which handles only the typeID
 		* of `descriptorClass`
 		*/
-		signalHandler = cast(immutable Signal)new Signal([descriptorClass], ev);
+		super([descriptorClass]);
+
+
+
+
+		/* TODO: Register `signalHandler` with the Engine */
+		/* TODO: Add a queue to the Engine for this desc class ID */
 	}
 
 
-	/**
-	* Test creation of a new Descriptor
-	*/
+
 	unittest
 	{
+
+
 		try
 		{
-			/* TODO: Set a mock event handler here */
-			EventHandler ev;
-			class TestDesc : Descriptor
+			/**
+			* Create a uniqye Descriptor for a future
+			* Job that will run the function `test`
+			* on completion (reply)
+			*/
+			class DescTest : Descriptor
 			{
 				this()
 				{
-					/* Set the signal handling funciton */
-					super(ev);
+					handler(null);
 				}
+
+
+				public override void handler(Event) {}
+
 			}
 
-			new TestDesc();
+			new DescTest();
 
 			assert(true);
 		}
@@ -297,6 +312,11 @@ public abstract class Descriptor
 	{
 		return descriptorClass;
 	}
+
+	/**
+	* Override this to handle Event
+	*/
+	public abstract override void handler(Event e);
 }
 
 
