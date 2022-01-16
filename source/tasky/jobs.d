@@ -84,8 +84,16 @@ public final class JobException : TaskyException
 */
 public abstract class Descriptor : Signal
 {
+	/**
+	* Descriptor ID reservation sub-system
+	*/
 	private static __gshared Mutex descQueueLock;
 	private static __gshared DList!(ulong) descQueue;
+
+	/**
+	* All descriptors (pool)
+	*/
+	private static __gshared DList!(Descriptor) descPool;
 
 	/**
 	* Descriptor data
@@ -269,11 +277,14 @@ public abstract class Descriptor : Signal
 			{
 				this()
 				{
-					handler(null);
+
 				}
 
 
-				public override void handler(Event) {}
+				public override void handler(Event e)
+				{
+					writeln("Event id ", e.id);
+				}
 
 			}
 
