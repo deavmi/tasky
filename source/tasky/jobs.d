@@ -252,12 +252,6 @@ public abstract class Descriptor : Signal
 		* of `descriptorClass`
 		*/
 		super([descriptorClass]);
-
-
-
-
-		/* TODO: Register `signalHandler` with the Engine */
-		/* TODO: Add a queue to the Engine for this desc class ID */
 	}
 
 
