@@ -35,7 +35,7 @@ public final class Job
 	* Returns the classification of this Job, i.e.
 	* its Descriptor number
 	*/
-	public string getJobTypeID()
+	public ulong getJobTypeID()
 	{
 		return descriptor.getDescriptorClass();
 	}
@@ -81,7 +81,18 @@ public final class JobException : TaskyException
 public abstract class Descriptor
 {
 	private static __gshared Mutex descQueueLock;
-	private static __gshared DList!(string) descQueue;
+	private static __gshared DList!(ulong) descQueue;
+
+	import eventy.signal;
+
+	/**
+	* Descriptor data
+	*
+	* The signal handler that handles the running
+	* of any job associated with this Descriptor
+	*/
+	private immutable Signal signalHandler;
+	private immutable ulong descriptorClass;
 
 	/**
 	* Static initialization of the descriptor
@@ -111,13 +122,13 @@ public abstract class Descriptor
 	*
 	* @param
 	*/
-	private static bool isDescIDInUse(string descID)
+	private static bool isDescIDInUse(ulong descID)
 	{
 		descQueueLock.lock();
 
-		foreach(string descIDCurr; descQueue)
+		foreach(ulong descIDCurr; descQueue)
 		{
-			if(cmp(descID, descIDCurr) == 0)
+			if(descID == descIDCurr)
 			{
 				descQueueLock.unlock();
 				return true;
@@ -138,10 +149,10 @@ public abstract class Descriptor
 	*/
 	unittest
 	{
-		string s1 = addDescQueue();
-		string s2 = addDescQueue();
+		ulong s1 = addDescQueue();
+		ulong s2 = addDescQueue();
 
-		assert(cmp(s1, s2) != 0);
+		assert(s1 != s2);
 	}
 
 
@@ -150,9 +161,9 @@ public abstract class Descriptor
 	* Finds the next valid descriptor class ID,
 	* reserves it and returns it
 	*/
-	private static string addDescQueue()
+	private static ulong addDescQueue()
 	{
-		string descID;
+		ulong descID;
 
 		descQueueLock.lock();
 
@@ -178,7 +189,7 @@ public abstract class Descriptor
 	* This returns a string that is a hash of
 	* the current time
 	*/
-	private static string generateDescID()
+	private static ulong generateDescID()
 	{
 		/* Get current time */
 		import std.datetime.systime : Clock;
@@ -197,14 +208,21 @@ public abstract class Descriptor
 
 		SHA1Digest sha = new SHA1Digest();
 
-		string digest = toHexString(sha.digest(data));
+		/**
+		* We will store the digest as the first 8
+		* bytes of the hash
+		*/
+		ulong digest;
+		ubyte[] hashDigest = sha.digest(data);
+
+		digest = *(cast(ulong*)hashDigest.ptr);
 
 		return digest;
 	}
 
 
 
-	private string descriptorClass;
+
 
 
 
@@ -212,10 +230,17 @@ public abstract class Descriptor
 	/**
 	* Creates a new Descriptor
 	*/
-	this()
+	this(EventHandler ev)
 	{
 		/* Grab a descripor ID */
 		descriptorClass = addDescQueue();
+
+		/**
+		* Setup a new Eventy Signal handler
+		* which handles only the typeID
+		* of `descriptorClass`
+		*/
+		signalHandler = cast(immutable Signal)new Signal([descriptorClass], ev);
 	}
 
 
@@ -226,8 +251,15 @@ public abstract class Descriptor
 	{
 		try
 		{
+			/* TODO: Set a mock event handler here */
+			EventHandler ev;
 			class TestDesc : Descriptor
 			{
+				this()
+				{
+					/* Set the signal handling funciton */
+					super(ev);
+				}
 			}
 
 			new TestDesc();
@@ -261,7 +293,7 @@ public abstract class Descriptor
 		return instantiatedDescriptor;
 	}
 
-	public final string getDescriptorClass()
+	public final ulong getDescriptorClass()
 	{
 		return descriptorClass;
 	}
