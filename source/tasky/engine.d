@@ -8,6 +8,7 @@
 module tasky.engine;
 
 import eventy.engine : EvEngine = Engine;
+import eventy.event : Event;
 import tasky.jobs : Descriptor;
 import tristanable;
 import std.socket : Socket;
@@ -40,6 +41,17 @@ public final class Engine : Thread
 		tmanager = new Manager(socket);
 	}
 
+	public class TaskyEvent : Event 
+	{
+		private byte[] payload;
+
+		this(ulong descID, byte[] payload)
+		{
+			super(descID);
+			this.payload = payload;
+		}
+	}
+
 
 	/**
 	* Worker thread function which checks the tristanable
@@ -50,9 +62,49 @@ public final class Engine : Thread
 	{
 		while(true)
 		{
+            /* TODO: Get all tristanable queues */
+            Queue[] tQueues = tmanager.getQueues();
+
+            foreach(Queue tQueue; tQueues)
+            {
+                /* Descriptor ID */
+                ulong descID = tQueue.getTag();
+
+                /* Check if the queue has mail */
+                /* TODO: Different discplines here, full-exhaust or round robin queue */
+                if(tQueue.poll())
+                {
+                    
+
+                    /* Get the data */
+                    QueueItem data = tQueue.dequeue();
+
+
+                    evEngine.push(new TaskyEvent(descID, data.getData()));
+
+                    // d.
+                    // data.getData()
+
+                    // evEngine.push
+                }
+                
+
+                
+
+            }
+            /* TODO: Use queue ID to match to descriptor id for later job dispatch */
+            /* TODO: Per each queue */
 		}
 	}
 
+
+    /**
+    * TODO: Dispatcher
+    */
+    private void dispatch()
+    {
+
+    }
 
 
 	/**
