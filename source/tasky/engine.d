@@ -39,6 +39,8 @@ public final class Engine : Thread
 		/* TODO: Check for exceptions */
 		/* Create a new tristanable manager */
 		tmanager = new Manager(socket);
+
+		start();
 	}
 
 	public class TaskyEvent : Event 
@@ -52,6 +54,7 @@ public final class Engine : Thread
 		}
 	}
 
+	import std.stdio;
 
 	/**
 	* Worker thread function which checks the tristanable
@@ -62,6 +65,8 @@ public final class Engine : Thread
 	{
 		while(true)
 		{
+			//writeln("WHITE BOY SUMMER");
+
             /* TODO: Get all tristanable queues */
             Queue[] tQueues = tmanager.getQueues();
 
@@ -94,6 +99,8 @@ public final class Engine : Thread
             }
             /* TODO: Use queue ID to match to descriptor id for later job dispatch */
             /* TODO: Per each queue */
+
+			/* TODO: Yield away somehow */
 		}
 	}
 
@@ -130,9 +137,69 @@ public final class Engine : Thread
 
 	unittest
 	{
+		import std.conv : to;
+		import core.thread : dur;
+
+		/* Job type */
+		Descriptor jobType = new class Descriptor {
+				public override void handler(Event e)
+				{
+					import std.stdio : writeln;
+					writeln("Event id ", e.id);
+
+					TaskyEvent eT = cast(TaskyEvent)e;
+					writeln(cast(string)eT.payload);
+				}
+		};
+
+		ulong jobTypeDI = jobType.getDescriptorClass;
+
+
+		import std.socket;
+		import std.stdio;
+		Socket serverSocket = new Socket(AddressFamily.INET6, SocketType.STREAM, ProtocolType.TCP);
+		serverSocket.bind(parseAddress("::1", 0));
+		Address serverAddress = serverSocket.localAddress();
+
+		Thread serverThread = new class Thread {
+			this()
+			{
+				super(&worker);
+				serverSocket.listen(0);
+
+			}
+
+			public void worker()
+			{
+
+				Socket clientSocket = serverSocket.accept();
+
+				sleep(dur!("seconds")(2));
+
+				import tristanable.encoding : DataMessage, encodeForSend;
+				DataMessage dMesg = new DataMessage(jobTypeDI, cast(byte[])"Hello");
+				writeln("Server send: ", clientSocket.send(encodeForSend(dMesg)));
+				
+			}
+		};
+
+		serverThread.start();
+
+		Socket clientSocket = new Socket(AddressFamily.INET6, SocketType.STREAM, ProtocolType.TCP);
+		clientSocket.connect(parseAddress("::1", to!(ushort)(serverAddress.toPortString())));
+
 		/* FIXME: Don't pass in null */
-		Engine e = new Engine(null);
+		Engine e = new Engine(clientSocket);
+
+		
+
+		e.registerDescriptor(jobType);
 
 
+		while(true)
+		{
+
+		}
+		
 	}
 }
