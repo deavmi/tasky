@@ -154,6 +154,21 @@ public final class Engine : Thread
 
 		ulong jobTypeDI = jobType.getDescriptorClass;
 
+		/* Job type */
+		Descriptor jobType2 = new class Descriptor {
+				public override void handler(Event e)
+				{
+					import std.stdio : writeln;
+					writeln("Event id ", e.id);
+
+					writeln("OTHER event type");
+					TaskyEvent eT = cast(TaskyEvent)e;
+					writeln(cast(string)eT.payload);
+				}
+		};
+
+		ulong jobTypeDI2 = jobType2.getDescriptorClass;
+
 
 		import std.socket;
 		import std.stdio;
@@ -177,7 +192,14 @@ public final class Engine : Thread
 				sleep(dur!("seconds")(2));
 
 				import tristanable.encoding : DataMessage, encodeForSend;
-				DataMessage dMesg = new DataMessage(jobTypeDI, cast(byte[])"Hello");
+				DataMessage dMesg = new DataMessage(jobTypeDI, cast(byte[])"Hello1");
+				writeln("Server send: ", clientSocket.send(encodeForSend(dMesg)));
+				dMesg = new DataMessage(jobTypeDI, cast(byte[])"Hello2");
+				writeln("Server send: ", clientSocket.send(encodeForSend(dMesg)));
+
+				dMesg = new DataMessage(jobTypeDI2, cast(byte[])"Hello3");
+				writeln("Server send: ", clientSocket.send(encodeForSend(dMesg)));
+				dMesg = new DataMessage(jobTypeDI2, cast(byte[])"Hello4");
 				writeln("Server send: ", clientSocket.send(encodeForSend(dMesg)));
 				
 			}
@@ -194,6 +216,7 @@ public final class Engine : Thread
 		
 
 		e.registerDescriptor(jobType);
+		e.registerDescriptor(jobType2);
 
 
 		while(true)
