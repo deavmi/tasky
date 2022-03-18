@@ -91,7 +91,10 @@ public final class Engine : Thread
                     // data.getData()
 
                     // evEngine.push
+
+					writeln("Queue just dequeued from: ", descID, " ", tQueue);
                 }
+				
                 
 
                 
@@ -154,6 +157,8 @@ public final class Engine : Thread
 
 		ulong jobTypeDI = jobType.getDescriptorClass;
 
+		ulong job2C = 0;
+
 		/* Job type */
 		Descriptor jobType2 = new class Descriptor {
 				public override void handler(Event e)
@@ -164,6 +169,8 @@ public final class Engine : Thread
 					writeln("OTHER event type");
 					TaskyEvent eT = cast(TaskyEvent)e;
 					writeln(cast(string)eT.payload);
+					// job2C++;
+					// assert(cmp(cast(string)eT.payload, ""))
 				}
 		};
 
@@ -192,15 +199,15 @@ public final class Engine : Thread
 				sleep(dur!("seconds")(2));
 
 				import tristanable.encoding : DataMessage, encodeForSend;
-				DataMessage dMesg = new DataMessage(jobTypeDI, cast(byte[])"Hello1");
-				writeln("Server send: ", clientSocket.send(encodeForSend(dMesg)));
-				dMesg = new DataMessage(jobTypeDI, cast(byte[])"Hello2");
-				writeln("Server send: ", clientSocket.send(encodeForSend(dMesg)));
+				DataMessage dMesg = new DataMessage(jobTypeDI, cast(byte[])"Hello 1");
+				writeln("Server send 1: ", clientSocket.send(encodeForSend(dMesg)));
+				dMesg = new DataMessage(jobTypeDI, cast(byte[])"Hello 2");
+				writeln("Server send 2: ", clientSocket.send(encodeForSend(dMesg)));
 
-				dMesg = new DataMessage(jobTypeDI2, cast(byte[])"Hello3");
-				writeln("Server send: ", clientSocket.send(encodeForSend(dMesg)));
-				dMesg = new DataMessage(jobTypeDI2, cast(byte[])"Hello4");
-				writeln("Server send: ", clientSocket.send(encodeForSend(dMesg)));
+				dMesg = new DataMessage(jobTypeDI2, cast(byte[])"Bye-bye! 3");
+				writeln("Server send 3: ", clientSocket.send(encodeForSend(dMesg)));
+				dMesg = new DataMessage(jobTypeDI2, cast(byte[])"Bye-bye! 4");
+				writeln("Server send 4: ", clientSocket.send(encodeForSend(dMesg)));
 				
 			}
 		};
