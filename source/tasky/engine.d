@@ -72,6 +72,8 @@ public final class Engine : Thread
 
             foreach(Queue tQueue; tQueues)
             {
+				// writeln("Check queue: ", tQueue);
+				
                 /* Descriptor ID */
                 ulong descID = tQueue.getTag();
 
@@ -127,8 +129,6 @@ public final class Engine : Thread
 
 		/* Add a signal handler that handles said descriptor ID */
 		evEngine.addSignalHandler(desc);
-
-		/* TODO: Tristanable queue addition here */
 
 		/* Create a new queue for this Job */
 		Queue tQueue = new Queue(desc.getDescriptorClass());
@@ -208,6 +208,12 @@ public final class Engine : Thread
 				writeln("Server send 3: ", clientSocket.send(encodeForSend(dMesg)));
 				dMesg = new DataMessage(jobTypeDI2, cast(byte[])"Bye-bye! 4");
 				writeln("Server send 4: ", clientSocket.send(encodeForSend(dMesg)));
+				
+
+				while(true)
+				{
+					
+				}
 				
 			}
 		};
