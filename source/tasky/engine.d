@@ -62,27 +62,24 @@ public final class Engine : Thread
 	*/
 	private void worker()
 	{
-		ulong got = 0;
-
 		while(true)
 		{
 			//writeln("WHITE BOY SUMMER");
 
-            /* TODO: Get all tristanable queues */
+			/** 
+			 * Loop through each queue, poll for
+			 * any new data, pull off one item
+			 * at most
+			 *
+			 * TODO: Different queuing systems
+			 */
             Queue[] tQueues = tmanager.getQueues();
-
-
-			// writeln("Got: ", got);
-
             foreach(Queue tQueue; tQueues)
             {
-				// writeln("Check queue: ", tQueue);
-				
                 /* Descriptor ID */
                 ulong descID = tQueue.getTag();
 
                 /* Check if the queue has mail */
-                /* TODO: Different discplines here, full-exhaust or round robin queue */
                 if(tQueue.poll())
                 {
                     /** 
@@ -94,8 +91,6 @@ public final class Engine : Thread
                     evEngine.push(new TaskyEvent(descID, data.getData()));
                 }
             }
-            /* TODO: Use queue ID to match to descriptor id for later job dispatch */
-            /* TODO: Per each queue */
 
 			/* TODO: Yield away somehow */
 			import core.thread : dur;
