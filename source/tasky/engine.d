@@ -64,8 +64,6 @@ public final class Engine : Thread
 	{
 		while(true)
 		{
-			//writeln("WHITE BOY SUMMER");
-
 			/** 
 			 * Loop through each queue, poll for
 			 * any new data, pull off one item
