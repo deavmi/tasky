@@ -41,6 +41,8 @@ public final class Engine : Thread
 		tmanager = new Manager(socket);
 
 		start();
+
+		writeln("Task enegine finished init");
 	}
 
 	public class TaskyEvent : Event 
@@ -63,12 +65,17 @@ public final class Engine : Thread
 	*/
 	private void worker()
 	{
+		ulong got = 0;
+
 		while(true)
 		{
 			//writeln("WHITE BOY SUMMER");
 
             /* TODO: Get all tristanable queues */
             Queue[] tQueues = tmanager.getQueues();
+
+
+			// writeln("Got: ", got);
 
             foreach(Queue tQueue; tQueues)
             {
@@ -95,9 +102,10 @@ public final class Engine : Thread
                     // evEngine.push
 
 					writeln("Queue just dequeued from: ", descID, " ", tQueue);
+
+					got++;
                 }
 				
-                
 
                 
 
@@ -106,6 +114,8 @@ public final class Engine : Thread
             /* TODO: Per each queue */
 
 			/* TODO: Yield away somehow */
+			import core.thread : dur;
+			sleep(dur!("msecs")(500));
 		}
 	}
 
@@ -198,6 +208,8 @@ public final class Engine : Thread
 
 				sleep(dur!("seconds")(2));
 
+				writeln("Server sending!!!!!!!!!!!");
+
 				import tristanable.encoding : DataMessage, encodeForSend;
 				DataMessage dMesg = new DataMessage(jobTypeDI, cast(byte[])"Hello 1");
 				writeln("Server send 1: ", clientSocket.send(encodeForSend(dMesg)));
@@ -230,6 +242,8 @@ public final class Engine : Thread
 
 		e.registerDescriptor(jobType);
 		e.registerDescriptor(jobType2);
+
+		writeln("TAsk client tests finished registration");
 
 
 		while(true)
