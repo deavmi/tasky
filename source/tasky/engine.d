@@ -40,9 +40,8 @@ public final class Engine : Thread
 		/* Create a new tristanable manager */
 		tmanager = new Manager(socket);
 
+		/* Start the loop */
 		start();
-
-		writeln("Task enegine finished init");
 	}
 
 	public class TaskyEvent : Event 
@@ -55,8 +54,6 @@ public final class Engine : Thread
 			this.payload = payload;
 		}
 	}
-
-	import std.stdio;
 
 	/**
 	* Worker thread function which checks the tristanable
@@ -88,34 +85,21 @@ public final class Engine : Thread
                 /* TODO: Different discplines here, full-exhaust or round robin queue */
                 if(tQueue.poll())
                 {
-                    
-
-                    /* Get the data */
+                    /** 
+					 * Dequeue the data item and push
+					 * event into the event loop containing
+					 * it
+					 */
                     QueueItem data = tQueue.dequeue();
-
-
                     evEngine.push(new TaskyEvent(descID, data.getData()));
-
-                    // d.
-                    // data.getData()
-
-                    // evEngine.push
-
-					writeln("Queue just dequeued from: ", descID, " ", tQueue);
-
-					got++;
                 }
-				
-
-                
-
             }
             /* TODO: Use queue ID to match to descriptor id for later job dispatch */
             /* TODO: Per each queue */
 
 			/* TODO: Yield away somehow */
 			import core.thread : dur;
-			sleep(dur!("msecs")(500));
+			// sleep(dur!("msecs")(500));
 		}
 	}
 
@@ -150,8 +134,12 @@ public final class Engine : Thread
 
 	unittest
 	{
+		/* Results array for unit testing */
+		bool[4] results;
+
 		import std.conv : to;
 		import core.thread : dur;
+		import std.string : cmp;
 
 		/* Job type */
 		Descriptor jobType = new class Descriptor {
@@ -161,7 +149,17 @@ public final class Engine : Thread
 					writeln("Event id ", e.id);
 
 					TaskyEvent eT = cast(TaskyEvent)e;
-					writeln(cast(string)eT.payload);
+					string data = cast(string)eT.payload;
+					writeln(data);
+
+					if(cmp(data, "Hello 1") == 0)
+					{
+						results[0] = true;
+					}
+					else if(cmp(data, "Hello 2") == 0)
+					{
+						results[1] = true;
+					}
 				}
 		};
 
@@ -177,10 +175,21 @@ public final class Engine : Thread
 					writeln("Event id ", e.id);
 
 					writeln("OTHER event type");
+
 					TaskyEvent eT = cast(TaskyEvent)e;
-					writeln(cast(string)eT.payload);
+					string data = cast(string)eT.payload;
+					writeln(data);
 					// job2C++;
 					// assert(cmp(cast(string)eT.payload, ""))
+
+					if(cmp(data, "Bye-bye! 3") == 0)
+					{
+						results[2] = true;
+					}
+					else if(cmp(data, "Bye-bye! 4") == 0)
+					{
+						results[3] = true;
+					}
 				}
 		};
 
@@ -207,8 +216,6 @@ public final class Engine : Thread
 				Socket clientSocket = serverSocket.accept();
 
 				sleep(dur!("seconds")(2));
-
-				writeln("Server sending!!!!!!!!!!!");
 
 				import tristanable.encoding : DataMessage, encodeForSend;
 				DataMessage dMesg = new DataMessage(jobTypeDI, cast(byte[])"Hello 1");
@@ -243,13 +250,13 @@ public final class Engine : Thread
 		e.registerDescriptor(jobType);
 		e.registerDescriptor(jobType2);
 
-		writeln("TAsk client tests finished registration");
 
-
-		while(true)
+		while(!results[0] || !results[1] || !results[2] || !results[3])
 		{
-
+			/* Check that the array has the correct values */
+			/* FIXME: Add timeout */
 		}
-		
+
+		/* TODO: Shutdown tasky here (shutdown eventy and tristanable) */
 	}
 }
