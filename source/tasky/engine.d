@@ -26,6 +26,8 @@ public final class Engine : Thread
 	*/
 	private EvEngine evEngine;
 
+	private bool running;
+
 	this(Socket socket)
 	{
 		/* Set the worker function */
@@ -41,6 +43,7 @@ public final class Engine : Thread
 		tmanager = new Manager(socket);
 
 		/* Start the loop */
+		running = true;
 		start();
 	}
 
@@ -62,7 +65,7 @@ public final class Engine : Thread
 	*/
 	private void worker()
 	{
-		while(true)
+		while(running)
 		{
 			/** 
 			 * Loop through each queue, poll for
@@ -97,6 +100,21 @@ public final class Engine : Thread
 	}
 
 	/**
+	* Stop the task engine
+	*/
+	public void shutdown()
+	{
+		/* Stop the loop */
+		running = false;
+		
+		/* TODO: Stop tristsnable (must be implemented in tristanable first) */
+		tmanager.shutdown();
+
+		/* TODO: Stop eventy (mjst be implemented in eventy first) */
+		evEngine.shutdown();
+	}
+
+	/**
 	* Register a Descriptor with tasky
 	*/
 	public void registerDescriptor(Descriptor desc)
@@ -124,6 +142,8 @@ public final class Engine : Thread
 		import core.thread : dur;
 		import std.string : cmp;
 		import std.datetime.stopwatch : StopWatch;
+
+		bool runDone;
 
 		/* Job type */
 		Descriptor jobType = new class Descriptor {
@@ -213,7 +233,7 @@ public final class Engine : Thread
 				writeln("Server send 4: ", clientSocket.send(encodeForSend(dMesg)));
 				
 
-				while(true)
+				while(!runDone)
 				{
 					
 				}
@@ -245,10 +265,15 @@ public final class Engine : Thread
 		{
 			if(watch.peek() > dur!("seconds")(4))
 			{
+				runDone = true;
 				assert(false);
 			}
 		}
 
+		runDone = true;
+
+
 		/* TODO: Shutdown tasky here (shutdown eventy and tristanable) */
+		e.shutdown();
 	}
 }
