@@ -123,6 +123,7 @@ public final class Engine : Thread
 		import std.conv : to;
 		import core.thread : dur;
 		import std.string : cmp;
+		import std.datetime.stopwatch : StopWatch;
 
 		/* Job type */
 		Descriptor jobType = new class Descriptor {
@@ -238,19 +239,12 @@ public final class Engine : Thread
 		* Await the expected result, but if this does not complete
 		* within 4 seconds then expect it failed
 		*/
-		import std.datetime.stopwatch : StopWatch;
-
 		StopWatch watch;
 		watch.start();
-
 		while(!results[0] || !results[1] || !results[2] || !results[3])
 		{
-			/* Check that the array has the correct values */
-			/* FIXME: Add timeout */
-
 			if(watch.peek() > dur!("seconds")(4))
 			{
-				writeln(watch.peek());
 				assert(false);
 			}
 		}
