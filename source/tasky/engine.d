@@ -225,7 +225,7 @@ public final class Engine : Thread
 		Socket clientSocket = new Socket(AddressFamily.INET6, SocketType.STREAM, ProtocolType.TCP);
 		clientSocket.connect(parseAddress("::1", to!(ushort)(serverAddress.toPortString())));
 
-		/* FIXME: Don't pass in null */
+		
 		Engine e = new Engine(clientSocket);
 
 		
@@ -234,10 +234,25 @@ public final class Engine : Thread
 		e.registerDescriptor(jobType2);
 
 
+		/**
+		* Await the expected result, but if this does not complete
+		* within 4 seconds then expect it failed
+		*/
+		import std.datetime.stopwatch : StopWatch;
+
+		StopWatch watch;
+		watch.start();
+
 		while(!results[0] || !results[1] || !results[2] || !results[3])
 		{
 			/* Check that the array has the correct values */
 			/* FIXME: Add timeout */
+
+			if(watch.peek() > dur!("seconds")(4))
+			{
+				writeln(watch.peek());
+				assert(false);
+			}
 		}
 
 		/* TODO: Shutdown tasky here (shutdown eventy and tristanable) */
