@@ -14,3 +14,11 @@ public abstract class TaskyException : Exception
 		super("TaskyException:"~msg);
 	}
 }
+
+public final class SubmissionException : TaskyException
+{
+	this(string msg)
+	{
+		super("SubmissionException: "~msg);
+	}
+}
