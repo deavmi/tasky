@@ -12,7 +12,8 @@ import eventy.event : Event;
 import tasky.jobs : Descriptor;
 import tristanable;
 import std.socket : Socket;
-import core.thread : Thread;
+import core.thread : Thread, dur;
+import tasky.exceptions : SessionError;
 
 public final class Engine : Thread
 {
@@ -40,7 +41,7 @@ public final class Engine : Thread
 
 		/* TODO: Check for exceptions */
 		/* Create a new tristanable manager */
-		tmanager = new Manager(socket);
+		tmanager = new Manager(socket, dur!("msecs")(100), true);
 
 		/* Start the loop */
 		running = true;
@@ -80,17 +81,33 @@ public final class Engine : Thread
                 /* Descriptor ID */
                 ulong descID = tQueue.getTag();
 
-                /* Check if the queue has mail */
-                if(tQueue.poll())
-                {
-                    /** 
-					 * Dequeue the data item and push
-					 * event into the event loop containing
-					 * it
-					 */
-                    QueueItem data = tQueue.dequeue();
-                    evEngine.push(new TaskyEvent(descID, data.getData()));
-                }
+
+				try
+				{
+					/* Check if the queue has mail */
+					if(tQueue.poll())
+					{
+						/** 
+						* Dequeue the data item and push
+						* event into the event loop containing
+						* it
+						*/
+						QueueItem data = tQueue.dequeue();
+						evEngine.push(new TaskyEvent(descID, data.getData()));
+					}
+				}
+				/* Catch the error when the underlying socket for Manager dies */
+				catch(ManagerError e)
+				{
+					/* TODO: We can only enablke this if off thread, doesn't make sense on thread, in other words it maybe makes sense */
+					/* TO call engine .run() that start a new thread seeing as thie point is to make this the backbone */
+					import std.stdio;
+					// writeln("YOO");
+					// throw new SessionError("Underlying socket (TManager) is dead");
+					// break;
+				}
+
+                
             }
 
 			/* TODO: Yield away somehow */
@@ -126,7 +143,7 @@ public final class Engine : Thread
 		evEngine.addSignalHandler(desc);
 
 		/* Create a new queue for this Job */
-		Queue tQueue = new Queue(desc.getDescriptorClass());
+		Queue tQueue = new Queue(tmanager, desc.getDescriptorClass());
 
 		/* Add the Queue to tristanable */
 		tmanager.addQueue(tQueue);
@@ -227,6 +244,8 @@ public final class Engine : Thread
 				dMesg = new DataMessage(jobTypeDI, cast(byte[])"Hello 2");
 				writeln("Server send 2: ", clientSocket.send(encodeForSend(dMesg)));
 
+				sleep(dur!("seconds")(1));
+
 				dMesg = new DataMessage(jobTypeDI2, cast(byte[])"Bye-bye! 3");
 				writeln("Server send 3: ", clientSocket.send(encodeForSend(dMesg)));
 				dMesg = new DataMessage(jobTypeDI2, cast(byte[])"Bye-bye! 4");
@@ -245,6 +264,8 @@ public final class Engine : Thread
 
 		Socket clientSocket = new Socket(AddressFamily.INET6, SocketType.STREAM, ProtocolType.TCP);
 		clientSocket.connect(parseAddress("::1", to!(ushort)(serverAddress.toPortString())));
+
+		
 
 		
 		Engine e = new Engine(clientSocket);
@@ -270,10 +291,14 @@ public final class Engine : Thread
 			}
 		}
 
+		writeln("Got to done testcase");
+
 		runDone = true;
 
 
 		/* TODO: Shutdown tasky here (shutdown eventy and tristanable) */
-		e.shutdown();
+		// e.shutdown();
+
+		// clientSocket.close;
 	}
 }

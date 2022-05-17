@@ -22,3 +22,15 @@ public final class SubmissionException : TaskyException
 		super("SubmissionException: "~msg);
 	}
 }
+
+/**
+* Raised if the underlying socket dies (connection closes)
+* or (TODO: check that Tasky shutdown does not cause this to weirdly go off by calling tmanager.shutdown())
+*/
+public final class SessionError : TaskyException
+{
+	this(string msg)
+	{
+		super("SessionError: "~msg);
+	}
+}
