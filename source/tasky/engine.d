@@ -48,6 +48,22 @@ public final class Engine : Thread
 		start();
 	}
 
+	/**
+	* Starts the Tasky engine
+	*
+	* FIXME: Pivot to using this
+	* FIXME: This code should be private and rather called at the beginning
+	* of `.start()`
+	*/
+	public void startTasky()
+	{
+		/* Start the event engine */
+		//evEngine.start();
+
+		/* TODO: TManager should not start immediately either I guess */
+		//tmanager.start();
+	}
+
 	public class TaskyEvent : Event 
 	{
 		private byte[] payload;
@@ -270,10 +286,18 @@ public final class Engine : Thread
 		
 		Engine e = new Engine(clientSocket);
 
+
 		
 
+		/**
+		* Setup the job types that are wanted
+		*/
 		e.registerDescriptor(jobType);
 		e.registerDescriptor(jobType2);
+
+
+		/* TODO: Use this in future */
+		// e.start();
 
 
 		/**
