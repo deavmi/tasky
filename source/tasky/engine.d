@@ -279,10 +279,9 @@ public final class Engine : Thread
 		
 
 		
+
+		/* Create a new Tasky engine */
 		Engine e = new Engine(clientSocket);
-
-
-		
 
 		/**
 		* Setup the job types that are wanted
@@ -291,8 +290,8 @@ public final class Engine : Thread
 		e.registerDescriptor(jobType2);
 
 
-		/* TODO: Use this in future */
-		// e.start();
+		/* Start the tasky engine */
+		e.start();
 
 
 		/**
