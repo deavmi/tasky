@@ -34,34 +34,26 @@ public final class Engine : Thread
 		/* Set the worker function */
 		super(&worker);
 
-		/* TODO: Check for exceptions */
 		/* Create a new event engine */
 		evEngine = new EvEngine();
-		evEngine.start();
-
-		/* TODO: Check for exceptions */
+		
 		/* Create a new tristanable manager */
-		tmanager = new Manager(socket, dur!("msecs")(100), true);
-
-		/* Start the loop */
-		running = true;
-		start();
+		tmanager = new Manager(socket, dur!("msecs")(100), true);	
 	}
 
 	/**
-	* Starts the Tasky engine
-	*
-	* FIXME: Pivot to using this
-	* FIXME: This code should be private and rather called at the beginning
-	* of `.start()`
+	* Start the sub-systems
 	*/
-	public void startTasky()
+	private void startTasky()
 	{
 		/* Start the event engine */
-		//evEngine.start();
+		evEngine.start();
 
-		/* TODO: TManager should not start immediately either I guess */
-		//tmanager.start();
+		/* Start the tristanable queue filter */
+		tmanager.start();
+
+		/* Start the loop */
+		running = true;
 	}
 
 	public class TaskyEvent : Event 
@@ -82,6 +74,9 @@ public final class Engine : Thread
 	*/
 	private void worker()
 	{
+		/* Start all sub-systems */
+		startTasky();
+
 		while(running)
 		{
 			/** 
