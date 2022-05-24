@@ -180,13 +180,12 @@ public final class Engine : Thread
 
 		/* Job type */
 		Descriptor jobType = new class Descriptor {
-				public override void handler(Event e)
+				public override void handler_TaskyEvent(TaskyEvent e)
 				{
 					import std.stdio : writeln;
 					writeln("Event id ", e.id);
 
-					TaskyEvent eT = cast(TaskyEvent)e;
-					string data = cast(string)eT.payload;
+					string data = cast(string)e.payload;
 					writeln(data);
 
 					if(cmp(data, "Hello 1") == 0)
@@ -206,15 +205,14 @@ public final class Engine : Thread
 
 		/* Job type */
 		Descriptor jobType2 = new class Descriptor {
-				public override void handler(Event e)
+				public override void handler_TaskyEvent(TaskyEvent e)
 				{
 					import std.stdio : writeln;
 					writeln("Event id ", e.id);
 
 					writeln("OTHER event type");
 
-					TaskyEvent eT = cast(TaskyEvent)e;
-					string data = cast(string)eT.payload;
+					string data = cast(string)e.payload;
 					writeln(data);
 					// job2C++;
 					// assert(cmp(cast(string)eT.payload, ""))

@@ -20,7 +20,12 @@ import std.string : cmp;
 import eventy.signal : Signal;
 import eventy.event : Event;
 
+// <<<<<<< Updated upstream
 import std.conv : to;
+// =======
+
+import tasky.engine : Engine, TaskyEvent;
+// >>>>>>> Stashed changes
 
 /**
 * A Job to be scheduled
@@ -339,7 +344,7 @@ public abstract class Descriptor : Signal
 					super(1);
 				}
 
-				public override void handler(Event e)
+				public override void handler_TaskyEvent(TaskyEvent e)
 				{
 					writeln("Event id ", e.id);
 				}
@@ -369,7 +374,7 @@ public abstract class Descriptor : Signal
 					super(2);
 				}
 
-				public override void handler(Event e)
+				public override void handler_TaskyEvent(TaskyEvent e)
 				{
 					writeln("Event id ", e.id);
 				}
@@ -398,7 +403,7 @@ public abstract class Descriptor : Signal
 					super(2);
 				}
 
-				public override void handler(Event e)
+				public override void handler_TaskyEvent(TaskyEvent e)
 				{
 					writeln("Event id ", e.id);
 				}
@@ -432,7 +437,7 @@ public abstract class Descriptor : Signal
 				}
 
 
-				public override void handler(Event e)
+				public override void handler_TaskyEvent(TaskyEvent e)
 				{
 					writeln("Event id ", e.id);
 				}
@@ -477,8 +482,24 @@ public abstract class Descriptor : Signal
 
 	/**
 	* Override this to handle Event
+	*
+	* TODO: This should be final and non-abstract
+	* and take in `Event e`, then the suer overrides
+	* one that takes in a TaskyEvent, this handler
+	* must call that one and THAT one must be abstract.
+	*
+	* This would make a lot more sense seeing how we
+	* always want to pack data.
+	*
+	* TODO: Make this named _entry and other named handler
+	*
 	*/
-	public abstract override void handler(Event e);
+	public final override void handler(Event e)
+	{
+		handler_TaskyEvent(cast(TaskyEvent)e);	
+	}
+	
+	public abstract void handler_TaskyEvent(TaskyEvent e);
 }
 
 
