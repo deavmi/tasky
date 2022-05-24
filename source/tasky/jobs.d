@@ -319,6 +319,100 @@ public abstract class Descriptor : Signal
 	}
 
 
+	/**
+	* Tests custom descriptor IDs
+	*
+	* FIXME: The unittest ordering to be kinda important
+	*/
+	
+	unittest
+	{
+		/**
+		* Add a descriptor with ID 1, this should pass
+		*/
+		try
+		{
+			class DescTest : Descriptor
+			{
+				this()
+				{
+					super(1);
+				}
+
+				public override void handler(Event e)
+				{
+					writeln("Event id ", e.id);
+				}
+			}
+
+			Descriptor newDesc = new DescTest();
+			assert(newDesc.getDescriptorClass() == 1);
+		}
+		catch(DescriptorException e)
+		{
+			assert(false);
+		}
+
+	}
+
+	unittest
+	{
+		/**
+		* Add a descriptor with ID 2, this should pass
+		*/
+		try
+		{
+			class DescTest : Descriptor
+			{
+				this()
+				{
+					super(2);
+				}
+
+				public override void handler(Event e)
+				{
+					writeln("Event id ", e.id);
+				}
+			}
+
+			Descriptor newDesc = new DescTest();
+			assert(newDesc.getDescriptorClass() == 2);
+		}
+		catch(DescriptorException e)
+		{
+			assert(false);
+		}
+	}
+
+	unittest
+	{
+		/**
+		* Add a descriptor with ID 2, this should pass
+		*/
+		try
+		{
+			class DescTest : Descriptor
+			{
+				this()
+				{
+					super(2);
+				}
+
+				public override void handler(Event e)
+				{
+					writeln("Event id ", e.id);
+				}
+			}
+
+			Descriptor newDesc = new DescTest();
+			assert(false);
+		}
+		catch(DescriptorException e)
+		{
+			assert(true);
+		}
+	}
+
 	unittest
 	{
 
