@@ -23,6 +23,14 @@ public final class SubmissionException : TaskyException
 	}
 }
 
+public final class DescriptorException : TaskyException
+{
+	this(string msg)
+	{
+		super("DescriptorException: "~msg);
+	}
+}
+
 /**
 * Raised if the underlying socket dies (connection closes)
 * or (TODO: check that Tasky shutdown does not cause this to weirdly go off by calling tmanager.shutdown())
