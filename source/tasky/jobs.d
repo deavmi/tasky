@@ -81,6 +81,8 @@ public final class JobException : TaskyException
 * by a unique ID. Along with this is an associated
 * signal handler provided by the user which is
 * to be run on completion of said Job
+*
+* TODO: Add support for custom IDs
 */
 public abstract class Descriptor : Signal
 {
@@ -257,6 +259,26 @@ public abstract class Descriptor : Signal
 		super([descriptorClass]);
 	}
 
+	/**
+	* Creates a new Descriptor (with a given fixed descriptor class)
+	*
+	* TODO: Future support (add this in after TaskyEvent things)
+	*/
+	this(ulong descriptorClass)
+	{
+		/* TODO: Check if it is available */
+		/* TODO: Add to queue */
+
+		/* Set the descriptor ID */
+		this.descriptorClass = descriptorClass;
+
+		/**
+		* Setup a new Eventy Signal handler
+		* which handles only the typeID
+		* of `descriptorClass`
+		*/
+		super([descriptorClass]);
+	}
 
 
 	unittest
