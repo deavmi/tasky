@@ -242,10 +242,12 @@ public abstract class Descriptor : Signal
 
 	/**
 	* Creates a new Descriptor
+	*
+	* FIXME: What if we cannot get a valid ID? Throw an exception
 	*/
 	this()
 	{
-		/* Grab a descripor ID */
+		/* Grab a descriptor ID */
 		descriptorClass = addDescQueue();
 
 		/**
@@ -257,13 +259,50 @@ public abstract class Descriptor : Signal
 	}
 
 	/**
+	* Given a descriptor class this will attempt adding it,
+	* on failure false is returned, on sucess, true
+	*
+	* NOTE: New feature, not yet in use
+	*/
+	private bool addClass(ulong descriptorClass)
+	{
+		bool status;
+		
+		descQueueLock.lock();
+
+		/* Check if we can add it */
+		if(!isDescIDInUse(descriptorClass))
+		{
+			/* Add it to the ID queue */
+			descQueue ~= descriptorClass;
+			
+			/* Set status to successful */
+			status = true;	
+		}
+		else
+		{
+			/* Set status to failure */
+			status = false;
+		}
+
+		descQueueLock.unlock();
+
+		return status;
+	}
+
+
+	/**
 	* Creates a new Descriptor (with a given fixed descriptor class)
 	*
 	* TODO: Future support (add this in after TaskyEvent things)
 	*/
 	this(ulong descriptorClass)
 	{
-		/* TODO: Check if it is available */
+		/* Check if the given descriptor class is available */
+		if(isDescIDInUse(descriptorClass))
+		{
+			/* TODO: This is a bad idea, we need to lock and one shot this */
+		}
 		/* TODO: Add to queue */
 
 		/* Set the descriptor ID */
