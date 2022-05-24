@@ -15,6 +15,22 @@ import std.socket : Socket;
 import core.thread : Thread, dur;
 import tasky.exceptions : SessionError;
 
+public class TaskyEvent : Event 
+{
+	private byte[] payload;
+
+	this(ulong descID, byte[] payload)
+	{
+		super(descID);
+		this.payload = payload;
+	}
+
+	public byte[] getPayload()
+	{
+		return payload;
+	}
+}
+
 public final class Engine : Thread
 {
 	/**
@@ -54,22 +70,6 @@ public final class Engine : Thread
 
 		/* Start the loop */
 		running = true;
-	}
-
-	public class TaskyEvent : Event 
-	{
-		private byte[] payload;
-
-		this(ulong descID, byte[] payload)
-		{
-			super(descID);
-			this.payload = payload;
-		}
-
-		public byte[] getPayload()
-		{
-			return payload;
-		}
 	}
 
 	/**
