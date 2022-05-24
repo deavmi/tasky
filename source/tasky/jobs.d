@@ -11,7 +11,7 @@ module tasky.jobs;
 /* TODO: Remove this import */
 import std.stdio;
 
-import tasky.exceptions : TaskyException;
+import tasky.exceptions : TaskyException, DescriptorException;
 /* TODO: DList stuff */
 import std.container.dlist;
 import core.sync.mutex : Mutex;
@@ -19,6 +19,8 @@ import core.sync.mutex : Mutex;
 import std.string : cmp;
 import eventy.signal : Signal;
 import eventy.event : Event;
+
+import std.conv : to;
 
 /**
 * A Job to be scheduled
@@ -261,8 +263,6 @@ public abstract class Descriptor : Signal
 	/**
 	* Given a descriptor class this will attempt adding it,
 	* on failure false is returned, on sucess, true
-	*
-	* NOTE: New feature, not yet in use
 	*/
 	private bool addClass(ulong descriptorClass)
 	{
@@ -298,16 +298,18 @@ public abstract class Descriptor : Signal
 	*/
 	this(ulong descriptorClass)
 	{
-		/* Check if the given descriptor class is available */
-		if(isDescIDInUse(descriptorClass))
+		/* Attempt adding */
+		if(addClass(descriptorClass))
 		{
-			/* TODO: This is a bad idea, we need to lock and one shot this */
+			/* Set the descriptor ID */
+			this.descriptorClass = descriptorClass;
 		}
-		/* TODO: Add to queue */
-
-		/* Set the descriptor ID */
-		this.descriptorClass = descriptorClass;
-
+		else
+		{
+			/* Throw an exception if the ID is already in use */
+			throw new DescriptorException("Given ID '"~to!(string)(descriptorClass)~"' is already in use");
+		}
+		
 		/**
 		* Setup a new Eventy Signal handler
 		* which handles only the typeID
