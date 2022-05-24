@@ -108,6 +108,9 @@ public abstract class Descriptor : Signal
 	/**
 	* Static initialization of the descriptor
 	* class ID queue's lock
+	*
+	* FIXME: BIG BUG FOR MULTITHREADED THIS MUST BE SET TO GSHARED TOO, else each thread
+	* will be overwriting the global descQueuLock
 	*/
 	static this()
 	{
