@@ -65,6 +65,11 @@ public final class Engine : Thread
 			super(descID);
 			this.payload = payload;
 		}
+
+		public byte[] getPayload()
+		{
+			return payload;
+		}
 	}
 
 	/**
