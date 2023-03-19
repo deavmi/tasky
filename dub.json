@@ -1,8 +1,8 @@
 {
 	"authors": [
-		"Tristan B. Kildaire"
+		"Tristan B. Velloza Kildaire"
 	],
-	"copyright": "Copyright © 2021, Tristan B. Kildaire",
+	"copyright": "Copyright © 2023, Tristan B. Kildaire",
 	"dependencies": {
 		"bformat": "~>3.1.3",
 		"eventy": "0.2.5",
