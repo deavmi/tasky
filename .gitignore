@@ -13,3 +13,5 @@ tasky-test-*
 *.o
 *.obj
 *.lst
+dub.selections.json
+.gitignore
