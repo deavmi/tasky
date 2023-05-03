@@ -14,6 +14,15 @@ public class Engine
 
     // TODO: Continue working on this
 
+    /** 
+     * Takes a request and sends it through to the endpoint
+     * afterwhich we block for a response and when we get one
+     * we run the handler, specified by the original request,
+     * on the response data
+     *
+     * Params:
+     *   req = the `Request` to send
+     */
     public void makeRequest(Request req)
     {
         /* Get a unique queue */
