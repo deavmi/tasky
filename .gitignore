@@ -15,3 +15,4 @@ tasky-test-*
 *.lst
 dub.selections.json
 .gitignore
+libtasky.a
