@@ -30,4 +30,9 @@ public abstract class Request
     {
         respFunc(responseData);
     }
+
+    package final bool expectsResponse()
+    {
+        return respFunc !is null;
+    }
 }
