@@ -3,10 +3,9 @@ tasky
 
 ![](branding/logo.png)
 
-## Creating a `Descriptor`
+## What is it?
 
-Before we can spawn any jobs one needs to first create a description
-of the type of `Job` that will be spawned.
+TODO: Describe here.
 
 
 ## Adding to your project
