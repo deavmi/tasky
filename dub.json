@@ -4,7 +4,7 @@
 	],
 	"copyright": "Copyright © 2023, Tristan B. Kildaire",
 	"dependencies": {
-		"tristanable": "3.1.9-beta"
+		"tristanable": "3.2.0-beta"
 	},
 	"description": "Tagged network-message task engine",
 	"license": "LGPL v3",
