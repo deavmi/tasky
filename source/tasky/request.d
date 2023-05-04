@@ -7,8 +7,6 @@ public alias ResponseHandler = void function(byte[]);
 public abstract class Request
 {
     private byte[] requestMessage;
-
-    // TODO: Define the below with an alias for a function pointer that accepts a byte[] (the response data)
     
     private ResponseHandler respFunc;
 
