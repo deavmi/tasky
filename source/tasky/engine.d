@@ -40,5 +40,8 @@ public class Engine
 
         /* Run the response handler with the response */
         req.process(resp);
+
+        /* De-register the queue */
+        tManager.releaseQueue(newQueue);
     }
 }
