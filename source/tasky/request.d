@@ -16,6 +16,11 @@ public abstract class Request
         this.respFunc = respFunc;
     }
 
+    protected this(byte[] requestMessage)
+    {
+        this(requestMessage, null);
+    }
+
     package final byte[] getRequestData()
     {
         return requestMessage;
